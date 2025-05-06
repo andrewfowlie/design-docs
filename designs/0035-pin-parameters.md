@@ -15,16 +15,16 @@ At present, to pin a parameter a Stan model must be rewritten. We must either:
 
 - move a parameter from the parameter block to the data block, where it is pinned to a fixed value
 - add convoluted logic so that a boolean (more precisely an integer<lower=0, upper=1>) in the data block can control whether a parameter is pinned, e.g., (from [here](https://discourse.mc-stan.org/t/fixing-parameters-in-a-model/39035/4?u=andrewfowlie))
-```
+```stan
 data {
   int<lower=0, upper=1> mu_is_data;
-  array[mu_is_data] mu_val;
+  array[mu_is_data] real mu_data;
   ...
 parameters {
-  array[1 - mu_is_data] mu_param;
+  array[1 - mu_is_data] real mu_param;
   ...
 transformed parameters {
-  real mu = mu_is data ? mu_val[1] : mu_param[1];
+  real mu = mu_is data ? mu_data[1] : mu_param[1];
   ...
 ```
 
@@ -76,22 +76,22 @@ At present, there are two restrictions on parameters that can be pinned:
 
 
 I think pinning parameters at runtime is far more elegant than existing solutions. At first, I had thought about a new keyword in the Stan language itself, e.g., in a parameter constraint
-```
+```stan
 parameters {
   real<pin=0.> mu;
 }
 ```
 It's certainly neater than 
-```
+```stan
 data {
   int<lower=0, upper=1> mu_is_data;
-  array[mu_is_data] mu_val;
+  array[mu_is_data] real mu_data;
   ...
 parameters {
-  array[1 - mu_is_data] mu_param;
+  array[1 - mu_is_data] real mu_param;
   ...
 transformed parameters {
-  real mu = mu_is data ? mu_val[1] : mu_param[1];
+  real mu = mu_is data ? mu_data[1] : mu_param[1];
   ...
 ```
 but even with `<pin=>`, pinning still requires one to change a model and recompile.
@@ -100,7 +100,7 @@ but even with `<pin=>`, pinning still requires one to change a model and recompi
 [prior-art]: #prior-art
 
 `PyMC` has specific functionality for pinning. See [here](https://www.pymc.io/projects/docs/en/stable/api/model/generated/pymc.model.transform.conditioning.do.html). In `PyMC`, pinning (and perhaps other similar things) are called 'interventions'. The example given in the docs is this,
-```
+```python
 import pymc as pm
 
 with pm.Model() as m:
