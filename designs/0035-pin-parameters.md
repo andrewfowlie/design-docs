@@ -132,6 +132,7 @@ Even with `<pin=>` or `@pin`, pinning still requires one to change a model and r
 `PyMC` has specific functionality for pinning. See [here](https://www.pymc.io/projects/docs/en/stable/api/model/generated/pymc.model.transform.conditioning.do.html). In `PyMC`, pinning (and perhaps other similar things) are called 'interventions'. The example given in the docs is this,
 ```python
 import pymc as pm
+import arviz as az  # added to make example code work
 
 with pm.Model() as m:
     x = pm.Normal("x", 0, 1)
